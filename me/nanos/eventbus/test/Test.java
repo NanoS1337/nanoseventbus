@@ -13,7 +13,13 @@ public class Test {
         System.out.println("Started posting events...");
         for(int i = 0; i<100; i++) {
             System.out.println("Posting event! System time in nanos: " + System.nanoTime());
-            EventBus.INSTANCE.post(new TestEvent(new Random().nextBoolean()));
+
+            TestEvent event = new TestEvent(new Random().nextBoolean());
+
+            if(new Random().nextBoolean())
+                event.cancel();
+
+            EventBus.INSTANCE.post(event);
         }
 
         System.out.println("Finished posting events!");
