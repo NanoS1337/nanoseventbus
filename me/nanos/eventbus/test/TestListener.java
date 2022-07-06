@@ -1,9 +1,9 @@
 package me.nanos.eventbus.test;
 
-import me.nanos.eventbus.Listen;
+import me.nanos.eventbus.ClientEvent;
 
 public class TestListener {
-    @Listen(TestEvent.class)
+    @ClientEvent
     public void onTestEvent(TestEvent event) {
         if(event.isCancelled()) {
             System.out.println("Event was cancelled! Received at time: " + System.nanoTime());

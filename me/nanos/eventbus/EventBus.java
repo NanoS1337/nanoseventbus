@@ -30,10 +30,10 @@ public enum EventBus {
         Map<Method, Class<? extends AbstractEvent>> methods = new HashMap<>();
 
         for (Method method : listenerClass.getMethods()) {
-            if (method.isAnnotationPresent(Listen.class)) {
-                Listen listen = method.getAnnotation(Listen.class);
-                Class<? extends AbstractEvent> eventClass = listen.value();
-                methods.put(method, eventClass);
+            if (method.isAnnotationPresent(ClientEvent.class)) {
+                if (method.getParameterCount() == 1 && AbstractEvent.class.isAssignableFrom(method.getParameterTypes()[0])) {
+                    methods.put(method, (Class<? extends AbstractEvent>) method.getParameterTypes()[0]);
+                }
             }
         }
 
