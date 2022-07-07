@@ -7,8 +7,10 @@ import java.util.Random;
 public class Test {
     public static void main(String[] args) {
         TestListener testListener = new TestListener();
+        OtherTestListener otherTestListener = new OtherTestListener();
 
         EventBus.INSTANCE.addListener(testListener);
+        EventBus.INSTANCE.addListener(otherTestListener);
 
         System.out.println("Started posting events...");
         for(int i = 0; i<100; i++) {
@@ -23,7 +25,7 @@ public class Test {
         }
 
         System.out.println("Finished posting events!");
-        EventBus.INSTANCE.removeListener(testListener);
+        EventBus.INSTANCE.clearListeners();
 
         System.out.println("Listener size: " + EventBus.INSTANCE.listeners.size());
 

@@ -2,8 +2,8 @@ package me.nanos.eventbus;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public enum EventBus {
     INSTANCE;
@@ -11,18 +11,24 @@ public enum EventBus {
     public final Map<Object, Map<Field, Class<? extends AbstractEvent>>> listeners = new HashMap<>();
 
     public void post(AbstractEvent event) {
+        getListeners().forEach(listener -> listener.fireEvent(event));
+    }
+
+    public List<EventListener<AbstractEvent>> getListeners() {
+        Map<EventPriority, EventListener<AbstractEvent>> temp = new HashMap<>();
+
         listeners.forEach((listener, fields) -> {
             fields.forEach((field, eventClass) -> {
-                if(event.getClass().isAssignableFrom(eventClass)) {
-                    try {
-                        EventListener eventListener = (EventListener) field.get(listener);
-                        eventListener.fireEvent(event);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    EventListener<AbstractEvent> eventListener = (EventListener<AbstractEvent>) field.get(listener);
+                    temp.put(field.getAnnotation(ClientEvent.class).priority(), eventListener);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         });
+
+        return temp.keySet().stream().sorted(Comparator.comparingInt(EventPriority::getComparator).reversed()).map(temp::get).collect(Collectors.toList());
     }
 
     public void addListener(Object listener) {
@@ -50,5 +56,13 @@ public enum EventBus {
 
     public void removeListener(Object listener) {
         listeners.remove(listener);
+    }
+
+    public void clearListeners() {
+        listeners.clear();
+    }
+
+    public boolean isRegistered(Object listener) {
+        return listeners.containsKey(listener);
     }
 }
