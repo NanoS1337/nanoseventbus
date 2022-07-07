@@ -11,19 +11,21 @@ public enum EventBus {
     public final Map<Object, Map<Field, Class<? extends AbstractEvent>>> listeners = new HashMap<>();
 
     public void post(AbstractEvent event) {
-        getListeners().forEach(listener -> listener.fireEvent(event));
+        getListeners(event).forEach(listener -> listener.fireEvent(event));
     }
 
-    public List<EventListener<AbstractEvent>> getListeners() {
+    public List<EventListener<AbstractEvent>> getListeners(AbstractEvent event) {
         Map<EventPriority, EventListener<AbstractEvent>> temp = new HashMap<>();
 
         listeners.forEach((listener, fields) -> {
             fields.forEach((field, eventClass) -> {
-                try {
-                    EventListener<AbstractEvent> eventListener = (EventListener<AbstractEvent>) field.get(listener);
-                    temp.put(field.getAnnotation(ClientEvent.class).priority(), eventListener);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(event.getClass().isAssignableFrom(eventClass)) {
+                    try {
+                        EventListener<AbstractEvent> eventListener = (EventListener<AbstractEvent>) field.get(listener);
+                        temp.put(field.getAnnotation(ClientEvent.class).priority(), eventListener);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         });
