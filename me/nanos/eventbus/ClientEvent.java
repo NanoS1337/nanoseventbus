@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ClientEvent {
-    EventPriority priority() default EventPriority.NORMAL;
+    int priority() default EventPriority.NORMAL;
 }

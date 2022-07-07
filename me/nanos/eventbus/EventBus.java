@@ -2,7 +2,10 @@ package me.nanos.eventbus;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum EventBus {
@@ -10,27 +13,25 @@ public enum EventBus {
 
     public final Map<Object, Map<Field, Class<? extends AbstractEvent>>> listeners = new HashMap<>();
 
-    public void post(AbstractEvent event) {
-        getListeners(event).forEach(listener -> listener.fireEvent(event));
+    public void post(AbstractEvent AbstractEvent) {
+        getListeners(AbstractEvent).forEach(listener -> listener.fireEvent(AbstractEvent));
     }
 
-    public List<EventListener<AbstractEvent>> getListeners(AbstractEvent event) {
-        Map<EventPriority, EventListener<AbstractEvent>> temp = new HashMap<>();
+    public List<EventListener<AbstractEvent>> getListeners(AbstractEvent AbstractEvent) {
+        Map<EventListener<AbstractEvent>, Integer> temp = new HashMap<>();
 
-        listeners.forEach((listener, fields) -> {
-            fields.forEach((field, eventClass) -> {
-                if(event.getClass().isAssignableFrom(eventClass)) {
-                    try {
-                        EventListener<AbstractEvent> eventListener = (EventListener<AbstractEvent>) field.get(listener);
-                        temp.put(field.getAnnotation(ClientEvent.class).priority(), eventListener);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        listeners.forEach((listener, fields) -> fields.forEach((field, AbstractEventClass) -> {
+            if(AbstractEvent.getClass().isAssignableFrom(AbstractEventClass)) {
+                try {
+                    EventListener<AbstractEvent> eventListener = (EventListener<AbstractEvent>) field.get(listener);
+                    temp.put(eventListener, field.getAnnotation(ClientEvent.class).priority());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
-        });
+            }
+        }));
 
-        return temp.keySet().stream().sorted(Comparator.comparingInt(EventPriority::getComparator).reversed()).map(temp::get).collect(Collectors.toList());
+        return temp.keySet().stream().sorted(Comparator.comparingInt(temp::get).reversed()).collect(Collectors.toList());
     }
 
     public void addListener(Object listener) {
@@ -44,7 +45,6 @@ public enum EventBus {
             if (field.isAnnotationPresent(ClientEvent.class)) {
                 if(field.getType().isAssignableFrom(EventListener.class)) {
                     try {
-                        EventListener eventListener = (EventListener) field.get(listener);
                         events.put(field, (Class<? extends AbstractEvent>) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0]);
                     } catch (Exception e) {
                         e.printStackTrace();

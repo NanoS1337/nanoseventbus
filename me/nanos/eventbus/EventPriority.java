@@ -1,19 +1,5 @@
 package me.nanos.eventbus;
 
-public enum EventPriority {
-    LOWEST(0),
-    LOW(1),
-    NORMAL(2),
-    HIGH(3),
-    HIGHEST(4);
-
-    private final int comparator;
-
-    EventPriority(int comparator) {
-        this.comparator = comparator;
-    }
-
-    public int getComparator() {
-        return comparator;
-    }
+public class EventPriority {
+    public static final int HIGHEST = 0, HIGH = 1, NORMAL = 2, LOW = 3, LOWEST = 4;
 }
